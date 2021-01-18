@@ -1,6 +1,6 @@
 //
 //  Request.swift
-//  RestAPIEventos
+//  Events
 //
 //  Created by Luís Felipe Polo on 17/01/21.
 //

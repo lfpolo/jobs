@@ -1,6 +1,6 @@
 //
 //  EventsAPI.swift
-//  RestAPIEventos
+//  Events
 //
 //  Created by Luís Felipe Polo on 17/01/21.
 //
@@ -20,7 +20,7 @@ class EventsAPI {
     }
     
     func getEvent(eventId : String, completion : @escaping (Event?, RequestResult) -> Void) {
-        RequestManager().request(address: urlEventsAPI + eventsEnpoint + eventId + "5", requestMethod: .GET) { data, result in
+        RequestManager().request(address: urlEventsAPI + eventsEnpoint + eventId, requestMethod: .GET) { data, result in
             completion(Decoder().decode(data: data, type: Event.self), result)
         }
     }

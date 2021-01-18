@@ -1,6 +1,6 @@
 //
 //  Decoder.swift
-//  RestAPIEventos
+//  Events
 //
 //  Created by Luís Felipe Polo on 18/01/21.
 //

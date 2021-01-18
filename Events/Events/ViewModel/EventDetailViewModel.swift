@@ -12,6 +12,9 @@ class EventDetailViewModel {
     var delegate : EventDetailViewModelDelegate?
     var event : Event
     var eventImage : UIImage? = nil
+    var shareText : String {
+        return event.title + " no dia " + event.date.toString + "! Descrição do evento: " + event.description
+    }
     
     init(event : Event) {
         self.event = event

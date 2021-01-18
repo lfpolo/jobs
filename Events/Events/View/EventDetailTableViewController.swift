@@ -38,6 +38,7 @@ class EventDetailTableViewController: UITableViewController {
         mapView.layer.masksToBounds = true
         eventImageView.layer.cornerRadius = 10
         eventImageView.layer.masksToBounds = true
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action:  #selector(shareTap))
     }
     
     // MARK: - Location
@@ -56,6 +57,22 @@ class EventDetailTableViewController: UITableViewController {
         
         //mapView.addAnnotation(annotation)
         mapView.setRegion(region, animated: true)
+    }
+    
+    // MARK: - Share
+    @objc func shareTap() {
+        
+        guard let viewModel = eventDetailViewModel else {
+            return
+        }
+        
+        let vc = UIActivityViewController(activityItems: [viewModel.shareText], applicationActivities: [])
+        
+        if let popOver = vc.popoverPresentationController {
+            popOver.sourceView = self.view
+        }
+        
+        present(vc, animated: true)
     }
     
     // MARK: - Checkin

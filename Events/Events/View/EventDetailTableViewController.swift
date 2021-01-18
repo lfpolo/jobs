@@ -12,6 +12,7 @@ class EventDetailTableViewController: UITableViewController {
     
     // MARK: - Properties
     var eventDetailViewModel : EventDetailViewModel? = nil
+    var activityIndicator = UIActivityIndicatorView(style: .large)
     
     // MARK: - Outlets
     @IBOutlet var eventDescription: UILabel!
@@ -22,9 +23,10 @@ class EventDetailTableViewController: UITableViewController {
     
     // MARK: - View Lifecycle
     override func viewDidLoad() {
+        setupView()
         eventDetailViewModel?.delegate = self
         eventDetailViewModel?.getEvent()
-        setupView()
+        activityIndicator.startAnimating()
     }
     
     func setupView() {
@@ -38,6 +40,7 @@ class EventDetailTableViewController: UITableViewController {
         mapView.layer.masksToBounds = true
         eventImageView.layer.cornerRadius = 10
         eventImageView.layer.masksToBounds = true
+        activityIndicator.setupIndicatorView(view: self.view)
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action:  #selector(shareTap))
     }
     
@@ -84,6 +87,7 @@ class EventDetailTableViewController: UITableViewController {
 // MARK: - ViewModelDelegate
 extension EventDetailTableViewController : EventDetailViewModelDelegate {
     func requestError() {
+        activityIndicator.stopAnimating()
         let alertController = UIAlertController(title: "Erro", message: "Erro ao obter os dados do evento.", preferredStyle: .alert)
         let OKAction = UIAlertAction(title: "OK", style: .default)
         alertController.addAction(OKAction)
@@ -95,6 +99,7 @@ extension EventDetailTableViewController : EventDetailViewModelDelegate {
     }
     
     func eventLoaded() {
+        activityIndicator.stopAnimating()
         setmap()
         eventDescription.text = eventDetailViewModel?.event.description
         eventTitle.text = eventDetailViewModel?.event.title

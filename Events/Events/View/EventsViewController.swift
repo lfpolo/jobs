@@ -13,6 +13,7 @@ class EventsViewController: UIViewController {
     // MARK: - Properties
     var eventsViewModel = EventsViewModel()
     var selectedEvent : Event? = nil
+    var activityIndicator = UIActivityIndicatorView(style: .large)
     
     // MARK: - Outlets
     @IBOutlet var eventsTableView: UITableView!
@@ -24,8 +25,12 @@ class EventsViewController: UIViewController {
         eventsTableView.delegate = self
         title = "Eventos"
         
+        activityIndicator.setupIndicatorView(view: self.view)
+        
         eventsViewModel.delegate = self
         eventsViewModel.getEvents()
+        activityIndicator.startAnimating()
+        
     }
     
     // MARK: - Segue to detail
@@ -69,6 +74,7 @@ extension EventsViewController : UITableViewDataSource, UITableViewDelegate {
 // MARK: - ViewModelDelegate
 extension EventsViewController : EventsViewModelDelegate {
     func eventsLoaded() {
+        activityIndicator.stopAnimating()
         eventsTableView.reloadData()
     }
 
@@ -77,6 +83,7 @@ extension EventsViewController : EventsViewModelDelegate {
     }
     
     func requestError() {
+        activityIndicator.stopAnimating()
         let alertController = UIAlertController(title: "Erro", message: "Erro ao obter os dados dos eventos.", preferredStyle: .alert)
         let OKAction = UIAlertAction(title: "OK", style: .default)
         alertController.addAction(OKAction)

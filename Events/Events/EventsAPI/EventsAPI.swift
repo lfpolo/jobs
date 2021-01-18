@@ -9,36 +9,38 @@ import Foundation
 
 class EventsAPI {
     
-    let urlEventsAPI = "http://5f5a8f24d44d640016169133.mockapi.io/api/events"
+    let urlEventsAPI = "http://5f5a8f24d44d640016169133.mockapi.io/api/"
+    let eventsEnpoint = "events/"
+    let checkinEndpoint = "checkin"
 
-    func getEventList(completion : @escaping ([Event]) -> Void) {
-        RequestManager().request(address: urlEventsAPI, requestMethod: .GET) { data in
-            completion(self.decode(data: data, type: [Event].self) ?? [])
+    func getEventList(completion : @escaping ([Event], RequestResult) -> Void) {
+        RequestManager().request(address: urlEventsAPI + eventsEnpoint, requestMethod: .GET) { data, result in
+            completion(Decoder().decode(data: data, type: [Event].self) ?? [], result)
         }
     }
     
-    func getEvent(eventId : String, completion : @escaping (Event) -> Void) {
-        RequestManager().request(address: urlEventsAPI + "/" + eventId, requestMethod: .GET) { data in
-            if let event = self.decode(data: data, type: Event.self) {
-                completion(event)
+    func getEvent(eventId : String, completion : @escaping (Event?, RequestResult) -> Void) {
+        RequestManager().request(address: urlEventsAPI + eventsEnpoint + eventId + "5", requestMethod: .GET) { data, result in
+            completion(Decoder().decode(data: data, type: Event.self), result)
+        }
+    }
+    
+    func checkIn(eventId : String, completion : @escaping (RequestResult) -> Void) {
+        
+        let postData = ["eventId": eventId, "name": "pessoa", "email": "emaildapessoa"]
+        
+        RequestManager().request(address: urlEventsAPI + checkinEndpoint, requestMethod: .POST, httpBody: postData) { data, result in
+
+            do {
+                if let data = data {
+                    let json = try JSONSerialization.jsonObject(with: data, options: [])
+                    print(json)
+                }
+            } catch {
+                print("JSON error: \(error.localizedDescription)")
             }
+            
+            completion(result)
         }
-    }
-    
-    func checkIn() {
-        
-    }
-    
-    func decode<T : Decodable>(data : Data, type : T.Type) -> T? {
-        do {
-            let jsonDecoder = JSONDecoder()
-            jsonDecoder.dateDecodingStrategy = .secondsSince1970
-            return try jsonDecoder.decode(T.self, from: data)
-        } catch {
-            print("JSON error: \(error.localizedDescription)")
-        }
-        
-        return nil
     }
 }
-

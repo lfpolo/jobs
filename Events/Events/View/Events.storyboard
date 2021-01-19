@@ -20,7 +20,7 @@
                                 <rect key="frame" x="0.0" y="44" width="414" height="852"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="EventCell" rowHeight="400" id="whT-gW-Z8q" customClass="EventCell" customModule="Events" customModuleProvider="target">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="EventCell" rowHeight="400" id="whT-gW-Z8q" customClass="EventCell" customModule="Events" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="28" width="414" height="400"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="whT-gW-Z8q" id="Bw3-a6-iMo">
@@ -32,7 +32,7 @@
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XdS-Qn-9nC">
                                                             <rect key="frame" x="5" y="5" width="364" height="26.5"/>
-                                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="22"/>
+                                                            <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
                                                         </label>
@@ -69,9 +69,9 @@
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>
-                                            <outlet property="eventDate" destination="YAh-L6-6e8" id="IBh-HD-pD6"/>
-                                            <outlet property="eventPrice" destination="A46-9u-ejt" id="fSf-wd-hgY"/>
-                                            <outlet property="eventTitle" destination="XdS-Qn-9nC" id="pSU-aP-OoH"/>
+                                            <outlet property="eventDateLabel" destination="YAh-L6-6e8" id="UaK-ZN-QPo"/>
+                                            <outlet property="eventPriceLabel" destination="A46-9u-ejt" id="9MJ-R4-9OY"/>
+                                            <outlet property="eventTitleLabel" destination="XdS-Qn-9nC" id="WQk-zU-x0R"/>
                                             <outlet property="titleView" destination="ttW-sB-Psh" id="Zmy-Ht-7mv"/>
                                             <outlet property="titleViewTopConstraint" destination="zBo-Ew-0S0" id="hnY-IR-DbT"/>
                                         </connections>

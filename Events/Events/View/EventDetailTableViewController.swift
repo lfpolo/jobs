@@ -15,11 +15,13 @@ class EventDetailTableViewController: UITableViewController {
     var activityIndicator = UIActivityIndicatorView(style: .large)
     
     // MARK: - Outlets
-    @IBOutlet var eventDescription: UILabel!
+    @IBOutlet var eventDescriptionLabel: UILabel!
     @IBOutlet var eventImageView: UIImageView!
     @IBOutlet var mapView: MKMapView!
     @IBOutlet var eventTitle: UILabel!
-    @IBOutlet var checkin: UIButton!
+    @IBOutlet var checkinButton: UIButton!
+    @IBOutlet var eventDateLabel: UILabel!
+    @IBOutlet var eventPriceLabel: UILabel!
     
     // MARK: - View Lifecycle
     override func viewDidLoad() {
@@ -31,34 +33,47 @@ class EventDetailTableViewController: UITableViewController {
     
     func setupView() {
         title = "Detalhes do Evento"
-        eventImageView.image = UIImage(named: "defaultImage")
-        eventDescription.sizeToFit()
+        
+        eventDescriptionLabel.sizeToFit()
+        
         eventTitle.sizeToFit()
-        checkin.layer.cornerRadius = 12
-        checkin.layer.masksToBounds = true
+        eventTitle.font = .preferredFont(forTextStyle: .title2, weight: .semibold)
+        
+        checkinButton.layer.cornerRadius = 12
+        checkinButton.layer.masksToBounds = true
+        
         mapView.layer.cornerRadius = 12
         mapView.layer.masksToBounds = true
+        
         eventImageView.layer.cornerRadius = 12
         eventImageView.layer.masksToBounds = true
+        eventImageView.image = UIImage(named: "defaultImage")
+        
+        checkinButton.titleLabel?.font = .preferredFont(forTextStyle: .callout, weight: .semibold)
+        
         activityIndicator.setupIndicatorView(view: self.view)
+        
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action:  #selector(shareTap))
     }
     
     // MARK: - Location
-    func setmap() {
-        guard let evento = eventDetailViewModel?.event else {
+    func setMapData() {
+        
+        guard let event = eventDetailViewModel?.event else {
             return
         }
-        let initialLocation = CLLocationCoordinate2D(latitude: evento.latitude, longitude: evento.longitude)
-        mapView.setCenter(initialLocation, animated: true)
         
-        //let annotation = MKPlacemark(coordinate: initialLocation)
+        let initialLocation = CLLocationCoordinate2D(latitude: event.latitude, longitude: event.longitude)
+        mapView.setCenter(initialLocation, animated: true)
+                
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = initialLocation
+        mapView.addAnnotation(annotation)
+        
         let region = MKCoordinateRegion(
             center: initialLocation,
             span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
         )
-        
-        //mapView.addAnnotation(annotation)
         mapView.setRegion(region, animated: true)
     }
     
@@ -100,9 +115,11 @@ extension EventDetailTableViewController : EventDetailViewModelDelegate {
     
     func eventLoaded() {
         activityIndicator.stopAnimating()
-        setmap()
-        eventDescription.text = eventDetailViewModel?.event.description
+        setMapData()
+        eventDescriptionLabel.text = eventDetailViewModel?.event.description
         eventTitle.text = eventDetailViewModel?.event.title
+        eventPriceLabel.text = eventDetailViewModel?.event.price.currencyString
+        eventDateLabel.text = eventDetailViewModel?.event.date.toString
         tableView.reloadData()
     }
     

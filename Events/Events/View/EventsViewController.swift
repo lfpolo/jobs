@@ -50,9 +50,9 @@ extension EventsViewController : UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let eventCell = tableView.dequeueReusableCell(withIdentifier: "EventCell", for: indexPath) as? EventCell {
             let event = eventsViewModel.events[indexPath.row]
-            eventCell.eventTitle.text = event.title
-            eventCell.eventDate.text = event.date.toString
-            eventCell.eventPrice.text = event.price.currencyString
+            eventCell.eventTitleLabel.text = event.title
+            eventCell.eventDateLabel.text = event.date.toString
+            eventCell.eventPriceLabel.text = event.price.currencyString
             
             if let image = eventsViewModel.images[event.id] {
                 eventCell.backgroundView = UIImageView(image: image)
@@ -110,9 +110,9 @@ extension EventsViewController {
     }
     
     private func updateLabelPosition(_ cell: EventCell) {
-        let point = view.convert(cell.eventTitle.frame.origin, from: cell.contentView)
+        let point = view.convert(cell.titleView.frame.origin, from: cell.contentView)
         let ratio = point.y / view.frame.height
-        let updatedConstraint = (ratio * 170)
+        let updatedConstraint = (ratio * 180)
         cell.titleViewTopConstraint.constant = updatedConstraint
     }
 }

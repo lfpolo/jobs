@@ -34,11 +34,11 @@ class EventDetailTableViewController: UITableViewController {
         eventImageView.image = UIImage(named: "defaultImage")
         eventDescription.sizeToFit()
         eventTitle.sizeToFit()
-        checkin.layer.cornerRadius = 15
+        checkin.layer.cornerRadius = 12
         checkin.layer.masksToBounds = true
-        mapView.layer.cornerRadius = 10
+        mapView.layer.cornerRadius = 12
         mapView.layer.masksToBounds = true
-        eventImageView.layer.cornerRadius = 10
+        eventImageView.layer.cornerRadius = 12
         eventImageView.layer.masksToBounds = true
         activityIndicator.setupIndicatorView(view: self.view)
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action:  #selector(shareTap))

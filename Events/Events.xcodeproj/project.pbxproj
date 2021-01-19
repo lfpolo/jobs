@@ -29,6 +29,7 @@
 		62BF009325B3B709002A9C98 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 62BF009125B3B709002A9C98 /* LaunchScreen.storyboard */; };
 		62BF009E25B3B709002A9C98 /* EventsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62BF009D25B3B709002A9C98 /* EventsTests.swift */; };
 		62BF00A925B3B709002A9C98 /* EventsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62BF00A825B3B709002A9C98 /* EventsUITests.swift */; };
+		62C9F96F25B6406300CABC81 /* UIActivityIndicatorView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62C9F96E25B6406300CABC81 /* UIActivityIndicatorView+Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +78,7 @@
 		62BF00A425B3B709002A9C98 /* EventsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EventsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		62BF00A825B3B709002A9C98 /* EventsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsUITests.swift; sourceTree = "<group>"; };
 		62BF00AA25B3B709002A9C98 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		62C9F96E25B6406300CABC81 /* UIActivityIndicatorView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIActivityIndicatorView+Extensions.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +127,7 @@
 			children = (
 				6242F9F325B587D000C48621 /* Double+Extensions.swift */,
 				6242F9FB25B588AC00C48621 /* Date+Extensions.swift */,
+				62C9F96E25B6406300CABC81 /* UIActivityIndicatorView+Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -359,6 +362,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				62BF008B25B3B706002A9C98 /* ViewController.swift in Sources */,
+				62C9F96F25B6406300CABC81 /* UIActivityIndicatorView+Extensions.swift in Sources */,
 				626D047E25B4B0E3007EB3DE /* EventsAPI.swift in Sources */,
 				62BF008725B3B706002A9C98 /* AppDelegate.swift in Sources */,
 				6242F9FC25B588AC00C48621 /* Date+Extensions.swift in Sources */,
@@ -549,7 +553,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = XUT68MXL9S;
 				INFOPLIST_FILE = Events/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -557,7 +563,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.SwiftChallenge.Events;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -567,7 +573,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = XUT68MXL9S;
 				INFOPLIST_FILE = Events/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -575,7 +583,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.SwiftChallenge.Events;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

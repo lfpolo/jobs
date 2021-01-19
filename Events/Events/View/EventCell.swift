@@ -16,7 +16,7 @@ class EventCell : UITableViewCell {
     
     override func awakeFromNib() {
         eventImageView.layer.masksToBounds = true
-        eventImageView.layer.cornerRadius = 10
+        eventImageView.layer.cornerRadius = 12
         eventImageView.image = UIImage(named: "defaultImage")
         
     }

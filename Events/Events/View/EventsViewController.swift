@@ -55,7 +55,9 @@ extension EventsViewController : UITableViewDataSource, UITableViewDelegate {
             eventCell.eventPrice.text = event.price.currencyString
             
             if let image = eventsViewModel.images[event.id] {
-                eventCell.eventImageView.image = image
+                eventCell.backgroundView = UIImageView(image: image)
+            } else {
+                eventCell.backgroundView = UIImageView(image: UIImage(named: "defaultImage"))
             }
             
             return eventCell
@@ -76,6 +78,7 @@ extension EventsViewController : EventsViewModelDelegate {
     func eventsLoaded() {
         activityIndicator.stopAnimating()
         eventsTableView.reloadData()
+        updateVisibleLabelPositions()
     }
 
     func imageLoaded() {
@@ -88,5 +91,28 @@ extension EventsViewController : EventsViewModelDelegate {
         let OKAction = UIAlertAction(title: "OK", style: .default)
         alertController.addAction(OKAction)
         present(alertController, animated: true)
+    }
+}
+
+// MARK: - Parallax
+extension EventsViewController {
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        updateVisibleLabelPositions()
+    }
+    
+    private func updateVisibleLabelPositions() {
+        for cell in eventsTableView.visibleCells {
+            if let eventCell = cell as? EventCell {
+                updateLabelPosition(eventCell)
+            }
+        }
+    }
+    
+    private func updateLabelPosition(_ cell: EventCell) {
+        let point = view.convert(cell.eventTitle.frame.origin, from: cell.contentView)
+        let ratio = point.y / view.frame.height
+        let updatedConstraint = (ratio * 170)
+        cell.titleViewTopConstraint.constant = updatedConstraint
     }
 }

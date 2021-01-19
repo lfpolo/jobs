@@ -12,12 +12,12 @@ class EventCell : UITableViewCell {
     @IBOutlet var eventPrice: UILabel!
     @IBOutlet var eventTitle: UILabel!
     @IBOutlet var eventDate: UILabel!
-    @IBOutlet var eventImageView: UIImageView!
+    @IBOutlet var titleViewTopConstraint: NSLayoutConstraint!
+    @IBOutlet var titleView: UIView!
     
     override func awakeFromNib() {
-        eventImageView.layer.masksToBounds = true
-        eventImageView.layer.cornerRadius = 12
-        eventImageView.image = UIImage(named: "defaultImage")
-        
+        titleView.alpha = 0.6
+        titleView.layer.cornerRadius = 10
+        titleView.layer.masksToBounds = true
     }
 }

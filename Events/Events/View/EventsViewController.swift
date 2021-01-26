@@ -7,6 +7,8 @@
 
 import Foundation
 import UIKit
+import RxSwift
+import RxCocoa
 
 class EventsViewController: UIViewController {
 
@@ -14,6 +16,7 @@ class EventsViewController: UIViewController {
     var eventsViewModel = EventsViewModel()
     var selectedEvent : Event? = nil
     var activityIndicator = UIActivityIndicatorView(style: .large)
+    let disposeBag = DisposeBag()
     
     // MARK: - Outlets
     @IBOutlet var eventsTableView: UITableView!

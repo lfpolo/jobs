@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import RxSwift
 
 class EventsViewModel {
     
@@ -14,34 +15,31 @@ class EventsViewModel {
     var events : [Event] = []
     var images : [String: UIImage] = [:]
     
+    let disposeBag = DisposeBag()
+    
     func getEvents() {
-        EventsAPI().getEventList() { [weak self] data, result  in
-            if result == .success {
-                self?.events = data
+        URLRequest.loadObject(url: URL(string: Event.eventsEndpoint)!)
+            .catchAndReturn([Event]())
+            .subscribe(onNext: { [weak self] response in
+                self?.events = response
                 self?.getImages()
-                
                 DispatchQueue.main.async {
                     self?.delegate?.eventsLoaded()
                 }
-            } else {
-                DispatchQueue.main.async {
-                    self?.delegate?.requestError()
-                }
-            }
-        }
+            }).disposed(by: disposeBag)
     }
     
     func getImages() {
         for event in events {
             if images[event.id] == nil {
-                RequestManager().request(address: event.image, requestMethod: .GET) { [weak self] data, result in
-                    if let data = data {
+                URLRequest.loadData(url: URL(string: event.image)!)
+                    .catchAndReturn(Data())
+                    .subscribe(onNext: { [weak self] data in
                         self?.images[event.id] = UIImage(data: data)
                         DispatchQueue.main.async() {
                             self?.delegate?.imageLoaded()
                         }
-                    }
-                }
+                    }).disposed(by: disposeBag)
             }
         }
     }

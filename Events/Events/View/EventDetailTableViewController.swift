@@ -7,12 +7,15 @@
 
 import UIKit
 import MapKit
+import RxSwift
+import RxCocoa
 
 class EventDetailTableViewController: UITableViewController {
     
     // MARK: - Properties
     var eventDetailViewModel : EventDetailViewModel? = nil
     var activityIndicator = UIActivityIndicatorView(style: .large)
+    let disposeBag = DisposeBag()
     
     // MARK: - Outlets
     @IBOutlet var eventDescriptionLabel: UILabel!
@@ -29,6 +32,42 @@ class EventDetailTableViewController: UITableViewController {
         eventDetailViewModel?.delegate = self
         eventDetailViewModel?.getEvent()
         activityIndicator.startAnimating()
+        
+        bindToViewModel()
+    }
+    
+    func bindToViewModel() {
+        eventDetailViewModel?.title
+            .bind(to: eventTitle.rx.text)
+            .disposed(by: disposeBag)
+        
+        eventDetailViewModel?.date
+            .bind(to: eventDateLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        eventDetailViewModel?.price
+            .bind(to: eventPriceLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        eventDetailViewModel?.description
+            .bind(to: eventDescriptionLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        eventDetailViewModel?.image
+            .bind(to: eventImageView.rx.image)
+            .disposed(by: disposeBag)
+        
+        eventDetailViewModel?.description.subscribe(onNext: { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.tableView.reloadData()
+            }
+        }).disposed(by: disposeBag)
+        
+        eventDetailViewModel?.coordinate.subscribe(onNext: { [weak self] coordinate in
+            DispatchQueue.main.async {
+                self?.setMapData(coordinate: coordinate)
+            }
+        }).disposed(by: disposeBag)
     }
     
     func setupView() {
@@ -57,13 +96,9 @@ class EventDetailTableViewController: UITableViewController {
     }
     
     // MARK: - Location
-    func setMapData() {
-        
-        guard let event = eventDetailViewModel?.event else {
-            return
-        }
-        
-        let initialLocation = CLLocationCoordinate2D(latitude: event.latitude, longitude: event.longitude)
+    func setMapData(coordinate : Coordinate) {
+
+        let initialLocation = CLLocationCoordinate2D(latitude: coordinate.latitude, longitude: coordinate.longitude)
         mapView.setCenter(initialLocation, animated: true)
                 
         let annotation = MKPointAnnotation()
@@ -108,21 +143,7 @@ extension EventDetailTableViewController : EventDetailViewModelDelegate {
         alertController.addAction(OKAction)
         present(alertController, animated: true)
     }
-    
-    func imageLoaded() {
-        eventImageView.image = eventDetailViewModel?.eventImage
-    }
-    
-    func eventLoaded() {
-        activityIndicator.stopAnimating()
-        setMapData()
-        eventDescriptionLabel.text = eventDetailViewModel?.event.description
-        eventTitle.text = eventDetailViewModel?.event.title
-        eventPriceLabel.text = eventDetailViewModel?.event.price.currencyString
-        eventDateLabel.text = eventDetailViewModel?.event.date.toString
-        tableView.reloadData()
-    }
-    
+
     func checkInResult(result: RequestResult) {
         let message = result == .success ? "Check-in efetuado com sucesso!" : "Não foi possível efetuar seu check-in. Tente novamente mais tarde."
         let alertController = UIAlertController(title: "Check-in", message: message, preferredStyle: .alert)

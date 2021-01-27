@@ -17,14 +17,15 @@ class EventDetailViewModel {
         return event.title + " no dia " + event.date.toString + "! Descrição do evento: " + event.description
     }
     
-    private var ev = BehaviorRelay<Event>(value: Event.empty)
-    private var eventImage = BehaviorRelay<UIImage?>(value: nil)
+    private var eventBehaviorRelay = BehaviorRelay<Event>(value: Event.empty)
+    private var eventImageBehaviorRelay = BehaviorRelay<UIImage?>(value: nil)
     var title : Observable<String>
     var price : Observable<String>
     var date : Observable<String>
     var description : Observable<String>
     var image : Observable<UIImage?>
     var coordinate : Observable<Coordinate>
+    let checkinTap = PublishSubject<Void>()
     
     let disposeBag = DisposeBag()
     
@@ -33,36 +34,40 @@ class EventDetailViewModel {
         self.event = event
         //ev = BehaviorRelay(value: event)
         
-        title = ev.map { $0.title }
-        price = ev.map { $0.price.currencyString }
-        date = ev.map { $0.date.toString }
-        description = ev.map { $0.description }
-        coordinate = ev.map { Coordinate(latitude: $0.latitude, longitude: $0.longitude) }
-        image = eventImage.map { $0 }
+        title = eventBehaviorRelay.map { $0.title }
+        price = eventBehaviorRelay.map { $0.price.currencyString }
+        date = eventBehaviorRelay.map { $0.date.toString }
+        description = eventBehaviorRelay.map { $0.description }
+        coordinate = eventBehaviorRelay.map { Coordinate(latitude: $0.latitude, longitude: $0.longitude) }
+        image = eventImageBehaviorRelay.map { $0 }
+
+        checkinTap.asObservable().subscribe(onNext: {
+            self.checkin()
+        }).disposed(by: disposeBag)
     }
     
     func getEvent() {
         URLRequest.loadObject(url: URL(string: Event.eventsEndpoint + event.id)!)
             .catchAndReturn(Event.empty)
             .subscribe(onNext: { [weak self] event in
-                self?.ev.accept(event)
+                self?.eventBehaviorRelay.accept(event)
                 self?.getImage()
             }).disposed(by: disposeBag)
     }
     
     func getImage() {
-        if eventImage.value == nil {
-            URLRequest.loadData(url: URL(string: ev.value.image)!)
+        if eventImageBehaviorRelay.value == nil {
+            URLRequest.loadData(url: URL(string: eventBehaviorRelay.value.image)!)
                 .catchAndReturn(Data())
                 .subscribe(onNext: { [weak self] data in
-                    self?.eventImage.accept(UIImage(data: data))
+                    self?.eventImageBehaviorRelay.accept(UIImage(data: data))
                 }).disposed(by: disposeBag)
         }
     }
     
     func checkin() {
         
-        let postData = ["eventId": ev.value.id, "name": "pessoa", "email": "emaildapessoa"]
+        let postData = ["eventId": eventBehaviorRelay.value.id, "name": "pessoa", "email": "emaildapessoa"]
         
         URLRequest.post(url: URL(string: Event.checkInEndpoint)!, httpBody: postData)
             .catchAndReturn(RequestResult.fail)

@@ -68,6 +68,10 @@ class EventDetailTableViewController: UITableViewController {
                 self?.setMapData(coordinate: coordinate)
             }
         }).disposed(by: disposeBag)
+
+        checkinButton.rx.tap
+            .bind(to: eventDetailViewModel!.checkinTap.asObserver())
+            .disposed(by: disposeBag)
     }
     
     func setupView() {
@@ -126,11 +130,6 @@ class EventDetailTableViewController: UITableViewController {
         }
         
         present(vc, animated: true)
-    }
-    
-    // MARK: - Checkin
-    @IBAction func checkIn(_ sender: Any) {
-        eventDetailViewModel?.checkin()
     }
 }
 

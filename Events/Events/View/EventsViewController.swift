@@ -10,7 +10,7 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-class EventsViewController: UIViewController {
+class EventsViewController: UIViewController, UITableViewDelegate {
 
     // MARK: - Properties
     var eventsViewModel = EventsViewModel()
@@ -21,85 +21,82 @@ class EventsViewController: UIViewController {
     // MARK: - Outlets
     @IBOutlet var eventsTableView: UITableView!
     
-    // MARK: - View Lifecycle
+    // MARK: - View lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        eventsTableView.dataSource = self
-        eventsTableView.delegate = self
-        title = "Eventos"
-        
-        activityIndicator.setupIndicatorView(view: self.view)
-        
-        eventsViewModel.delegate = self
+        activityIndicator.setupIndicatorView(view: view)
         eventsViewModel.getEvents()
-        activityIndicator.startAnimating()
+        bindToViewModel()
+    }
+    
+    // MARK: - ViewModel binds
+    func bindToViewModel() {
+        eventsTableView.rx
+            .setDelegate(self)
+            .disposed(by: disposeBag)
+            
+        eventsViewModel.eventsBehaviorRelay.asObservable()
+            .bind(to: eventsTableView.rx.items(cellIdentifier: "EventCell", cellType: EventCell.self)) { [weak self] index, element, cell in
+                cell.eventTitleLabel.text = element.title
+                cell.eventDateLabel.text = element.date.toString
+                cell.eventPriceLabel.text = element.price.currencyString
+                
+                if let image = self?.eventsViewModel.imagesBehaviorRelay.value[element.id] {
+                    cell.backgroundView = UIImageView(image: image)
+                }
+                
+                self?.updateLabelPosition(cell)
+        }.disposed(by: disposeBag)
         
+        eventsViewModel.imagesBehaviorRelay.asObservable()
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] _ in
+                self?.eventsTableView.reloadData()
+        }).disposed(by: disposeBag)
+        
+        eventsTableView.rx.itemSelected.subscribe(onNext: { [weak self] indexPath in
+            do {
+                self?.selectedEvent = try self?.eventsTableView.rx.model(at: indexPath)
+                self?.performSegue(withIdentifier: "showDetail", sender: self)
+            } catch {
+                print("erro: nenhum evento selecionado")
+            }
+        }).disposed(by: disposeBag)
+        
+        eventsViewModel.eventsRequestStatus
+            .observe(on: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] result in
+                self?.updateActivityIndicator(requestStatus: result)
+                if result == .fail {
+                    self?.requestError()
+                }
+        }).disposed(by: disposeBag)
     }
     
     // MARK: - Segue to detail
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let vc = segue.destination as? EventDetailTableViewController, let event = selectedEvent {
-            vc.eventDetailViewModel = EventDetailViewModel(event: event)
+            vc.eventDetailViewModel = EventDetailViewModel(eventId: event.id)
         }
     }
-}
-
-// MARK: - TableViewDataSource, UITableViewDelegate
-extension EventsViewController : UITableViewDataSource, UITableViewDelegate {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return eventsViewModel.events.count
-    }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let eventCell = tableView.dequeueReusableCell(withIdentifier: "EventCell", for: indexPath) as? EventCell {
-            let event = eventsViewModel.events[indexPath.row]
-            eventCell.eventTitleLabel.text = event.title
-            eventCell.eventDateLabel.text = event.date.toString
-            eventCell.eventPriceLabel.text = event.price.currencyString
-            
-            if let image = eventsViewModel.images[event.id] {
-                eventCell.backgroundView = UIImageView(image: image)
-            } else {
-                eventCell.backgroundView = UIImageView(image: UIImage(named: "defaultImage"))
-            }
-            
-            return eventCell
+    // MARK: - Helpers
+    func updateActivityIndicator(requestStatus : RequestResult) {
+        if requestStatus == .waiting {
+            activityIndicator.startAnimating()
+        } else {
+            activityIndicator.stopAnimating()
         }
-        
-        return UITableViewCell()
-    }
-
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        selectedEvent = eventsViewModel.events[indexPath.row]
-        performSegue(withIdentifier: "showDetail", sender: self)
-    }
-    
-}
-
-// MARK: - ViewModelDelegate
-extension EventsViewController : EventsViewModelDelegate {
-    func eventsLoaded() {
-        activityIndicator.stopAnimating()
-        eventsTableView.reloadData()
-        updateVisibleLabelPositions()
-    }
-
-    func imageLoaded() {
-        eventsTableView.reloadData()
     }
     
     func requestError() {
-        activityIndicator.stopAnimating()
         let alertController = UIAlertController(title: "Erro", message: "Erro ao obter os dados dos eventos.", preferredStyle: .alert)
         let OKAction = UIAlertAction(title: "OK", style: .default)
         alertController.addAction(OKAction)
         present(alertController, animated: true)
     }
-}
-
-// MARK: - Parallax
-extension EventsViewController {
     
+    // MARK: - Parallax
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         updateVisibleLabelPositions()
     }

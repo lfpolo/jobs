@@ -5,20 +5,17 @@
 //  Created by Luís Felipe Polo on 18/01/21.
 //
 
-import UIKit
-import Foundation
 import RxSwift
 import RxCocoa
 
 class EventDetailViewModel {
-    var delegate : EventDetailViewModelDelegate?
-    var event : Event
-    var shareText : String {
-        return event.title + " no dia " + event.date.toString + "! Descrição do evento: " + event.description
-    }
+    let eventId : String
     
-    private var eventBehaviorRelay = BehaviorRelay<Event>(value: Event.empty)
-    private var eventImageBehaviorRelay = BehaviorRelay<UIImage?>(value: nil)
+    let eventBehaviorRelay = BehaviorRelay<Event>(value: Event.empty)
+    let eventImageBehaviorRelay = BehaviorRelay<UIImage?>(value: nil)
+    let eventRequestStatus = BehaviorRelay<RequestResult>(value: .none)
+    let checkInRequestStatus = BehaviorRelay<RequestResult>(value: .none)
+    
     var title : Observable<String>
     var price : Observable<String>
     var date : Observable<String>
@@ -29,10 +26,8 @@ class EventDetailViewModel {
     
     let disposeBag = DisposeBag()
     
-    init(event : Event) {
-        
-        self.event = event
-        //ev = BehaviorRelay(value: event)
+    init(eventId : String) {
+        self.eventId = eventId
         
         title = eventBehaviorRelay.map { $0.title }
         price = eventBehaviorRelay.map { $0.price.currencyString }
@@ -41,47 +36,55 @@ class EventDetailViewModel {
         coordinate = eventBehaviorRelay.map { Coordinate(latitude: $0.latitude, longitude: $0.longitude) }
         image = eventImageBehaviorRelay.map { $0 }
 
-        checkinTap.asObservable().subscribe(onNext: {
-            self.checkin()
+        checkinTap.asObservable().subscribe(onNext: { [weak self] in
+            self?.checkin()
         }).disposed(by: disposeBag)
     }
     
     func getEvent() {
-        URLRequest.loadObject(url: URL(string: Event.eventsEndpoint + event.id)!)
-            .catchAndReturn(Event.empty)
-            .subscribe(onNext: { [weak self] event in
-                self?.eventBehaviorRelay.accept(event)
-                self?.getImage()
+        guard let url = URL(string: Event.eventsEndpoint + eventId) else {
+            eventRequestStatus.accept(.fail)
+            return
+        }
+        
+        eventRequestStatus.accept(.waiting)
+        let resource : Resource<Event> = Resource(url: url)
+        URLRequest.loadObject(resource: resource)
+            .subscribe(onNext: { event in
+                self.eventRequestStatus.accept(.success)
+                self.eventBehaviorRelay.accept(event)
+                self.getImage()
+            }, onError: { error in
+                self.eventRequestStatus.accept(.fail)
             }).disposed(by: disposeBag)
     }
     
     func getImage() {
-        if eventImageBehaviorRelay.value == nil {
-            URLRequest.loadData(url: URL(string: eventBehaviorRelay.value.image)!)
-                .catchAndReturn(Data())
-                .subscribe(onNext: { [weak self] data in
-                    self?.eventImageBehaviorRelay.accept(UIImage(data: data))
+        if let imageUrl = URL(string: eventBehaviorRelay.value.image), eventImageBehaviorRelay.value == nil {
+            URLRequest.loadData(url: imageUrl)
+                //.catchAndReturn(Data())
+                .subscribe(onNext: { data in
+                    self.eventImageBehaviorRelay.accept(UIImage(data: data))
+                }, onError: { _ in
+                    self.eventImageBehaviorRelay.accept(UIImage(named: "defaultImage"))
                 }).disposed(by: disposeBag)
         }
     }
     
     func checkin() {
+        guard let url = URL(string: Event.checkInEndpoint) else {
+            checkInRequestStatus.accept(.fail)
+            return
+        }
         
+        checkInRequestStatus.accept(.waiting)
         let postData = ["eventId": eventBehaviorRelay.value.id, "name": "pessoa", "email": "emaildapessoa"]
-        
-        URLRequest.post(url: URL(string: Event.checkInEndpoint)!, httpBody: postData)
+        URLRequest.post(url: url, httpBody: postData)
             .catchAndReturn(RequestResult.fail)
-            .subscribe(onNext: { [weak self] requestResult in
-                DispatchQueue.main.async() {
-                    self?.delegate?.checkInResult(result: requestResult)
-                }
+            .subscribe(onNext: { requestResult in
+                self.checkInRequestStatus.accept(requestResult)
             }).disposed(by: disposeBag)
     }
-}
-
-protocol EventDetailViewModelDelegate {
-    func checkInResult(result: RequestResult)
-    func requestError()
 }
 
 struct Coordinate {

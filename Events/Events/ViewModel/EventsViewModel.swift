@@ -5,48 +5,44 @@
 //  Created by Luís Felipe Polo on 18/01/21.
 //
 
-import Foundation
-import UIKit
 import RxSwift
+import RxCocoa
 
 class EventsViewModel {
     
-    var delegate : EventsViewModelDelegate?
-    var events : [Event] = []
-    var images : [String: UIImage] = [:]
-    
+    var imagesBehaviorRelay = BehaviorRelay<[String: UIImage]>(value: [:])
+    var eventsBehaviorRelay = BehaviorRelay<[Event]>(value: [])
+    let eventsRequestStatus = BehaviorRelay<RequestResult>(value: .none)
     let disposeBag = DisposeBag()
     
     func getEvents() {
-        URLRequest.loadObject(url: URL(string: Event.eventsEndpoint)!)
-            .catchAndReturn([Event]())
-            .subscribe(onNext: { [weak self] response in
-                self?.events = response
-                self?.getImages()
-                DispatchQueue.main.async {
-                    self?.delegate?.eventsLoaded()
-                }
+        guard let url = URL(string: Event.eventsEndpoint) else {
+            eventsRequestStatus.accept(.fail)
+            return
+        }
+        
+        eventsRequestStatus.accept(.waiting)
+        let resource : Resource<[Event]> = Resource(url: url)
+        URLRequest.loadObject(resource: resource)
+            .subscribe(onNext: { response in
+                self.eventsRequestStatus.accept(.success)
+                self.eventsBehaviorRelay.accept(response)
+                self.getImages()
+            }, onError: { error in
+                self.eventsRequestStatus.accept(.fail)
             }).disposed(by: disposeBag)
     }
     
     func getImages() {
-        for event in events {
-            if images[event.id] == nil {
-                URLRequest.loadData(url: URL(string: event.image)!)
-                    .catchAndReturn(Data())
-                    .subscribe(onNext: { [weak self] data in
-                        self?.images[event.id] = UIImage(data: data)
-                        DispatchQueue.main.async() {
-                            self?.delegate?.imageLoaded()
-                        }
+        for event in eventsBehaviorRelay.value {
+            if let url = URL(string: event.image), imagesBehaviorRelay.value[event.id] == nil {
+                URLRequest.loadData(url: url)
+                    .subscribe(onNext: { data in
+                        var images = self.imagesBehaviorRelay.value
+                        images[event.id] = UIImage(data: data)
+                        self.imagesBehaviorRelay.accept(images)
                     }).disposed(by: disposeBag)
             }
         }
     }
-}
-
-protocol EventsViewModelDelegate {
-    func eventsLoaded()
-    func imageLoaded()
-    func requestError()
 }

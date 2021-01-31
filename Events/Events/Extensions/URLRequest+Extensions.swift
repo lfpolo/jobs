@@ -8,9 +8,13 @@
 import RxSwift
 import RxCocoa
 
+struct Resource<T: Decodable> {
+    let url: URL
+}
+
 extension URLRequest {
-    static func loadObject<T: Decodable>(url : URL) -> Observable<T> {
-        return Observable.just(url)
+    static func loadObject<T: Decodable>(resource : Resource<T>) -> Observable<T> {
+        return Observable.just(resource.url)
             .flatMap { url -> Observable<(response: HTTPURLResponse, data: Data)> in
                 return URLSession.shared.rx.response(request: URLRequest(url: url))
             }.map { response, data -> T in
@@ -56,5 +60,5 @@ extension URLRequest {
 }
 
 enum RequestResult {
-    case success, fail
+    case success, fail, waiting, none
 }

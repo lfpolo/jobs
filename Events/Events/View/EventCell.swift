@@ -22,5 +22,6 @@ class EventCell : UITableViewCell {
         titleView.alpha = 0.7
         titleView.layer.cornerRadius = 10
         titleView.layer.masksToBounds = true
+        backgroundView = UIImageView(image: UIImage(named: "defaultImage"))
     }
 }

@@ -8,7 +8,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Events View Controller-->
+        <!--Eventos-->
         <scene sceneID="qeo-nJ-yrp">
             <objects>
                 <viewController id="sCf-qc-WnI" customClass="EventsViewController" customModule="Events" customModuleProvider="target" sceneMemberID="viewController">
@@ -19,6 +19,9 @@
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="300" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="XvW-Dp-nas">
                                 <rect key="frame" x="0.0" y="44" width="414" height="852"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="650" id="PTg-Ly-hht"/>
+                                </constraints>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="EventCell" rowHeight="400" id="whT-gW-Z8q" customClass="EventCell" customModule="Events" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="28" width="414" height="400"/>
@@ -83,12 +86,13 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="XvW-Dp-nas" firstAttribute="top" secondItem="n70-eF-mF1" secondAttribute="top" id="55r-s3-DLj"/>
-                            <constraint firstItem="XvW-Dp-nas" firstAttribute="leading" secondItem="n70-eF-mF1" secondAttribute="leading" id="6lM-Yz-61v"/>
-                            <constraint firstItem="n70-eF-mF1" firstAttribute="trailing" secondItem="XvW-Dp-nas" secondAttribute="trailing" id="BFz-eD-i9f"/>
+                            <constraint firstItem="XvW-Dp-nas" firstAttribute="leading" secondItem="n70-eF-mF1" secondAttribute="leading" priority="250" id="6lM-Yz-61v"/>
+                            <constraint firstItem="n70-eF-mF1" firstAttribute="trailing" secondItem="XvW-Dp-nas" secondAttribute="trailing" priority="250" id="BFz-eD-i9f"/>
                             <constraint firstItem="XvW-Dp-nas" firstAttribute="bottom" secondItem="mJH-yi-sm9" secondAttribute="bottom" id="a3E-Tm-100"/>
+                            <constraint firstItem="XvW-Dp-nas" firstAttribute="centerX" secondItem="mJH-yi-sm9" secondAttribute="centerX" id="ajr-81-Q04"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="W7p-YZ-grm"/>
+                    <navigationItem key="navigationItem" title="Eventos" id="W7p-YZ-grm"/>
                     <connections>
                         <outlet property="eventsTableView" destination="XvW-Dp-nas" id="zmK-xp-EA4"/>
                         <segue destination="O5k-Lc-Fnn" kind="show" identifier="showDetail" id="Uq4-gI-2yj"/>

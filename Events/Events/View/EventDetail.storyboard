@@ -8,7 +8,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Event Detail Table View Controller-->
+        <!--Detalhes do Evento-->
         <scene sceneID="ayR-kB-vMH">
             <objects>
                 <tableViewController id="1A7-a7-uh0" customClass="EventDetailTableViewController" customModule="Events" customModuleProvider="target" sceneMemberID="viewController">
@@ -118,9 +118,6 @@
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleCallout"/>
                                                     <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <state key="normal" title="Check-in"/>
-                                                    <connections>
-                                                        <action selector="checkIn:" destination="1A7-a7-uh0" eventType="touchUpInside" id="2Zy-AM-qKU"/>
-                                                    </connections>
                                                 </button>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qos-9O-MAZ">
                                                     <rect key="frame" x="20" y="24.5" width="42" height="21"/>
@@ -154,7 +151,7 @@
                             <outlet property="delegate" destination="1A7-a7-uh0" id="XW8-P2-IzV"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="bde-OM-qEl"/>
+                    <navigationItem key="navigationItem" title="Detalhes do Evento" id="bde-OM-qEl"/>
                     <connections>
                         <outlet property="checkinButton" destination="DXK-SM-35V" id="w8f-EB-N6n"/>
                         <outlet property="eventDateLabel" destination="Qos-9O-MAZ" id="Sy7-hA-NKR"/>

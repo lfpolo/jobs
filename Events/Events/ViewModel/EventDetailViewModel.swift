@@ -5,64 +5,89 @@
 //  Created by Luís Felipe Polo on 18/01/21.
 //
 
-import UIKit
-import Foundation
+import RxSwift
+import RxCocoa
 
 class EventDetailViewModel {
-    var delegate : EventDetailViewModelDelegate?
-    var event : Event
-    var eventImage : UIImage? = nil
-    var shareText : String {
-        return event.title + " no dia " + event.date.toString + "! Descrição do evento: " + event.description
-    }
+    let eventId : String
     
-    init(event : Event) {
-        self.event = event
+    let eventBehaviorRelay = BehaviorRelay<Event>(value: Event.empty)
+    let eventImageBehaviorRelay = BehaviorRelay<UIImage?>(value: nil)
+    let eventRequestStatus = BehaviorRelay<RequestResult>(value: .none)
+    let checkInRequestStatus = BehaviorRelay<RequestResult>(value: .none)
+    
+    var title : Observable<String>
+    var price : Observable<String>
+    var date : Observable<String>
+    var description : Observable<String>
+    var image : Observable<UIImage?>
+    var coordinate : Observable<Coordinate>
+    let checkinTap = PublishSubject<Void>()
+    
+    let disposeBag = DisposeBag()
+    
+    init(eventId : String) {
+        self.eventId = eventId
+        
+        title = eventBehaviorRelay.map { $0.title }
+        price = eventBehaviorRelay.map { $0.price.currencyString }
+        date = eventBehaviorRelay.map { $0.date.toString }
+        description = eventBehaviorRelay.map { $0.description }
+        coordinate = eventBehaviorRelay.map { Coordinate(latitude: $0.latitude, longitude: $0.longitude) }
+        image = eventImageBehaviorRelay.map { $0 }
+
+        checkinTap.asObservable().subscribe(onNext: { [weak self] in
+            self?.checkin()
+        }).disposed(by: disposeBag)
     }
     
     func getEvent() {
-        EventsAPI().getEvent(eventId: event.id) { [weak self] data, result in
-            if result == .success, let event = data {
-                self?.event = event
-                self?.getImage()
-                
-                DispatchQueue.main.async {
-                    self?.delegate?.eventLoaded()
-                }
-            } else {
-                DispatchQueue.main.async {
-                    self?.delegate?.requestError()
-                }
-            }
+        guard let url = URL(string: Event.eventsEndpoint + eventId) else {
+            eventRequestStatus.accept(.fail)
+            return
         }
+        
+        eventRequestStatus.accept(.waiting)
+        let resource : Resource<Event> = Resource(url: url)
+        URLRequest.loadObject(resource: resource)
+            .subscribe(onNext: { event in
+                self.eventRequestStatus.accept(.success)
+                self.eventBehaviorRelay.accept(event)
+                self.getImage()
+            }, onError: { error in
+                self.eventRequestStatus.accept(.fail)
+            }).disposed(by: disposeBag)
     }
     
     func getImage() {
-        if eventImage == nil {
-            RequestManager().request(address: event.image, requestMethod: .GET) { [weak self] data, result  in
-                if let data = data {
-                    self?.eventImage = UIImage(data: data)
-                    
-                    DispatchQueue.main.async() {
-                        self?.delegate?.imageLoaded()
-                    }
-                }
-            }
+        if let imageUrl = URL(string: eventBehaviorRelay.value.image), eventImageBehaviorRelay.value == nil {
+            URLRequest.loadData(url: imageUrl)
+                //.catchAndReturn(Data())
+                .subscribe(onNext: { data in
+                    self.eventImageBehaviorRelay.accept(UIImage(data: data))
+                }, onError: { _ in
+                    self.eventImageBehaviorRelay.accept(UIImage(named: "defaultImage"))
+                }).disposed(by: disposeBag)
         }
     }
     
     func checkin() {
-        EventsAPI().checkIn(eventId: event.id) { result in
-            DispatchQueue.main.async() {
-                self.delegate?.checkInResult(result: result)
-            }
+        guard let url = URL(string: Event.checkInEndpoint) else {
+            checkInRequestStatus.accept(.fail)
+            return
         }
+        
+        checkInRequestStatus.accept(.waiting)
+        let postData = ["eventId": eventBehaviorRelay.value.id, "name": "pessoa", "email": "emaildapessoa"]
+        URLRequest.post(url: url, httpBody: postData)
+            .catchAndReturn(RequestResult.fail)
+            .subscribe(onNext: { requestResult in
+                self.checkInRequestStatus.accept(requestResult)
+            }).disposed(by: disposeBag)
     }
 }
 
-protocol EventDetailViewModelDelegate {
-    func eventLoaded()
-    func imageLoaded()
-    func checkInResult(result: RequestResult)
-    func requestError()
+struct Coordinate {
+    let latitude : Double
+    let longitude : Double
 }

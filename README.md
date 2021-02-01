@@ -6,3 +6,4 @@ Aplicativo em Swift que consome uma REST API e exibe uma lista de eventos. Para 
 - Parallax na lista de eventos
 - Opção para compartilhar com outros apps
 - Testes unitários dos decoders
+- RxSwift
